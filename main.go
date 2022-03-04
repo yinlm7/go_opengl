@@ -68,7 +68,7 @@ func initGlfw() *glfw.Window {
 }
 
 // initOpenGL 初始化 OpenGL 并返回一个已经编译好的着色器程序
-func initOpengl() uint32 {
+func initOpengl(fs string) uint32 {
 
 	//gl 初始化
 	if err := gl.Init(); err != nil {
@@ -81,7 +81,7 @@ func initOpengl() uint32 {
 	log.Println("Opengl Version:", version)
 
 	//读取shader
-	fragmentByteSlice, err := ioutil.ReadFile(`./fragmentShader/transition/立体旋转.fs`)
+	fragmentByteSlice, err := ioutil.ReadFile("./fragmentShader/transition/" + fs + ".fs")
 	if err != nil {
 		panic(err)
 	}
@@ -117,6 +117,7 @@ func compileShader(source string, shaderType uint32) (uint32, error) {
 	gl.ShaderSource(shader, 1, cSource, nil) //替换着色器中的源代码
 	free()                                   //释放内存
 	gl.CompileShader(shader)                 //编译着色器对象
+
 	var status int32
 	gl.GetShaderiv(shader, gl.COMPILE_STATUS, &status) //从着色器对象返回编译结果绑定到status
 	if status == gl.FALSE {
@@ -269,7 +270,7 @@ func saveImage() {
 
 	colorBuffer := make([]byte, width*height*4)
 	gl.ReadBuffer(gl.BACK_LEFT)
-	gl.ReadPixels(0, 0, 500, 500, gl.RGBA, gl.UNSIGNED_BYTE, gl.Ptr(colorBuffer))
+	gl.ReadPixels(0, 0, width, height, gl.RGBA, gl.UNSIGNED_BYTE, gl.Ptr(colorBuffer))
 
 	img := &image.RGBA{Pix: colorBuffer, Stride: width * 4, Rect: image.Rect(0, 0, width, height)}
 	var buff bytes.Buffer
@@ -297,7 +298,7 @@ func main() {
 
 	defer glfw.Terminate() //销毁
 
-	program := initOpengl() //opengl初始化
+	program := initOpengl("立体图片") //opengl初始化
 
 	vao := createVao(quad, indices) //顶点绑定
 
